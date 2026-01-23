@@ -151,11 +151,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const parallax = document.getElementById("parallax");
 
     /* PARALLAX */
-    let offset = 0;
-    setInterval(() => {
-        offset += 0.15;
-        parallax.style.transform = `translateY(${offset}px) scale(1.05)`;
-    }, 50);
 
     function beatHeart() {
         heart.classList.remove("beat");
@@ -203,3 +198,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
+
