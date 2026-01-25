@@ -130,7 +130,20 @@ h1 {
 </style>
 </head>
 <body>
+<audio id="bgMusic" loop>
+    <source src="muzyka.mp3" type="audio/mpeg">
+</audio>
 
+<script>
+const music = document.getElementById("bgMusic");
+
+// autoplay po kliknięciu (wymagane przez przeglądarki)
+document.addEventListener("click", () => {
+    music.volume = 0.3; // głośność 0–1
+    music.play();
+}, { once: true });
+</script>
+ 
 <div class="parallax" id="parallax"></div>
 <div class="overlay"></div>
 
@@ -198,4 +211,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
+
 
