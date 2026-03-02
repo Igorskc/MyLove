@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kochanieńka ❤️</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+
 html, body {
     margin: 0;
     height: 100%;
@@ -17,25 +18,23 @@ html, body {
     color: #fff;
 }
 
-/* === TŁO === */
+/* TŁO */
 .parallax {
     position: fixed;
     inset: 0;
     background-image: url("tlo.jpg");
     background-size: cover;
     background-position: center;
-    will-change: transform;
-    transform: translateY(0);
     z-index: 0;
 }
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.2);
     z-index: 1;
 }
 
-/* === KARTA === */
+/* KARTA */
 .wrapper {
     height: 100%;
     display: flex;
@@ -45,63 +44,20 @@ html, body {
     position: relative;
     z-index: 2;
 }
+
 .card {
     max-width: 520px;
     width: 100%;
     padding: 32px 28px;
-    background: rgba(20,10,18,0.55);
-    backdrop-filter: blur(12px);
+    background: rgba(20,10,18,0.6);
+    backdrop-filter: blur(14px);
     border-radius: 26px;
     text-align: center;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-}
-h1 {
-    font-family: "Playfair Display", serif;
-    font-size: clamp(2rem, 6vw, 2.7rem);
-    margin-bottom: 14px;
-    color: #ffd1dc;
-    text-shadow: 0 0 16px rgba(255,170,200,0.6);
 }
 
-/* === SERCE === */
-.heart {
-    font-size: 4rem;
-    margin: 10px 0 22px;
-    display: inline-block;
-}
-.beat {
-    animation: beat 0.6s ease-in-out;
-}
-@keyframes beat {
-    0% { transform: scale(1); }
-    30% { transform: scale(1.3); }
-    60% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-}
-
-/* === LICZNIKI === */
-.label {
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    opacity: 0.7;
-    margin-bottom: 6px;
-}
-.time {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-.seconds {
-    font-family: "Playfair Display", serif;
-    font-size: clamp(2.4rem, 9vw, 4.4rem);
-    font-weight: 700;
-    color: #ffe3ec;
-    text-shadow: 0 0 22px rgba(255,200,220,0.75);
-}
-
-/* === PRZYCISK MUZYKI === */
-#musicBtn {
-    margin-top: 16px;
+/* PRZYCISKI */
+button {
+    margin-top: 14px;
     padding: 10px 18px;
     border-radius: 20px;
     border: none;
@@ -109,120 +65,165 @@ h1 {
     background: rgba(255,255,255,0.25);
     color: #fff;
     font-size: 1rem;
+    transition: 0.3s;
 }
 
-/* === UNOSZĄCE SERDUSZKA === */
-.floating-heart {
-    position: fixed;
-    bottom: -40px;
-    font-size: 1.4rem;
-    animation: floatUp 6s linear forwards;
-    pointer-events: none;
-    z-index: 3;
+button:hover {
+    background: rgba(255,255,255,0.4);
 }
-@keyframes floatUp {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 0;
-    }
-    10% { opacity: 1; }
-    100% {
-        transform: translateY(-120vh) scale(1.5);
-        opacity: 0;
-    }
+
+/* KOMUNIKAT */
+#message {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+/* ANIMACJA PREZENTU */
+.gift-box {
+    font-size: 3.5rem;
+    margin-top: 10px;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+.opened {
+    transform: scale(1.6) rotate(20deg);
+    opacity: 0;
+}
+
+.hidden { display: none; }
+
+#contentBox {
+    margin-top: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* MUZYKA */
+#musicBtn {
+    margin-top: 20px;
 }
 </style>
 </head>
+
 <body>
 
-<!-- MUZYKA -->
 <audio id="bgMusic" loop>
     <source src="muzyka.mp3" type="audio/mpeg">
 </audio>
 
-<div class="parallax" id="parallax"></div>
+<div class="parallax"></div>
 <div class="overlay"></div>
 
 <div class="wrapper">
-    <div class="card">
-        <h1>Do spełnienia marzeń pozostało</h1>
-        <div class="heart" id="heart">❤️</div>
-        <div class="label">OGÓLNIE</div>
-        <div class="time" id="fullCounter">—</div>
-        <div class="label">SEKUNDY</div>
-        <div class="seconds" id="secondsCounter">—</div>
+<div class="card">
 
-        <!-- PRZYCISK PLAY / PAUSE -->
-        <button id="musicBtn">🎵 Play</button>
-    </div>
+<h1>🎁 Prezent dla Ukochanej</h1>
+
+<div class="gift-box" id="giftIcon">❤️</div>
+
+<button id="giftBtn">Odpakuj prezent</button>
+<div id="message"></div>
+
+<div id="giftOptions" class="hidden">
+    <button onclick="showCategory('stories')">📖 Opowiadania</button>
+    <button onclick="showCategory('poems')">✍ Rymowanki / Wierszyki</button>
+</div>
+
+<div id="contentBox"></div>
+
+<button id="musicBtn">🎵 Play</button>
+
+</div>
 </div>
 
 <script>
+// ===== MUZYKA =====
 const music = document.getElementById("bgMusic");
-const btn = document.getElementById("musicBtn");
+const musicBtn = document.getElementById("musicBtn");
 
-// start po pierwszym kliknięciu gdziekolwiek
-function startMusic() {
+document.addEventListener("click", function startMusic() {
     music.volume = 0.3;
     music.play();
-    btn.textContent = "⏸ Pauza";
+    musicBtn.textContent = "⏸ Pauza";
     document.removeEventListener("click", startMusic);
-    document.removeEventListener("touchstart", startMusic);
-}
-document.addEventListener("click", startMusic);
-document.addEventListener("touchstart", startMusic);
+}, { once: true });
 
-// play / pause przyciskiem
-btn.addEventListener("click", () => {
+musicBtn.addEventListener("click", () => {
     if (music.paused) {
         music.play();
-        btn.textContent = "⏸ Pauza";
+        musicBtn.textContent = "⏸ Pauza";
     } else {
         music.pause();
-        btn.textContent = "🎵 Play";
+        musicBtn.textContent = "🎵 Play";
     }
 });
-</script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const heart = document.getElementById("heart");
+// ===== PREZENT =====
+const unlockDate = new Date(2026, 2, 27, 0, 0, 0);
+const giftBtn = document.getElementById("giftBtn");
+const message = document.getElementById("message");
+const giftOptions = document.getElementById("giftOptions");
+const giftIcon = document.getElementById("giftIcon");
+const contentBox = document.getElementById("contentBox");
 
-    function beatHeart() {
-        heart.classList.remove("beat");
-        void heart.offsetWidth;
-        heart.classList.add("beat");
-    }
-    function floatingHeart() {
-        const h = document.createElement("div");
-        h.className = "floating-heart";
-        h.textContent = "❤️";
-        h.style.left = Math.random() * 100 + "vw";
-        h.style.fontSize = (1 + Math.random() * 1.5) + "rem";
-        document.body.appendChild(h);
-        setTimeout(() => h.remove(), 6000);
-    }
-    function updateCounter() {
-        const targetDate = new Date(2026, 1, 14, 15, 0, 0); // 14 lutego 2026, 15:00
-        const now = new Date();
-        let diff = Math.floor((targetDate - now) / 1000);
-        if (diff < 0) diff = 0;
+giftBtn.addEventListener("click", () => {
+
+    const now = new Date();
+
+    if (now < unlockDate) {
+
+        let diff = Math.floor((unlockDate - now) / 1000);
+
         const days = Math.floor(diff / 86400);
         diff %= 86400;
         const hours = Math.floor(diff / 3600);
         diff %= 3600;
         const minutes = Math.floor(diff / 60);
         const seconds = diff % 60;
-        document.getElementById("fullCounter").textContent =
-            `${days} dni ${hours} h ${minutes} min ${seconds} s`;
-        document.getElementById("secondsCounter").textContent =
-            Math.floor((targetDate - now) / 1000).toLocaleString("pl-PL");
-        beatHeart();
-        floatingHeart();
+
+        message.innerHTML =
+        `Prezent będzie możliwy do otwarcia za:<br>
+        ${days} dni ${hours} h ${minutes} min ${seconds} s`;
+
+    } else {
+
+        // animacja
+        giftIcon.classList.add("opened");
+
+        setTimeout(() => {
+            giftBtn.style.display = "none";
+            giftIcon.style.display = "none";
+            giftOptions.classList.remove("hidden");
+            message.innerHTML = "Prezent został otwarty 💖";
+        }, 600);
     }
-    updateCounter();
-    setInterval(updateCounter, 1000);
+
 });
+
+function showCategory(type) {
+
+    if (type === "stories") {
+        contentBox.innerHTML = `
+        <h3>Opowiadanie 1</h3>
+        <p>Tutaj wkleisz swoje pierwsze opowiadanie...</p>
+        `;
+    }
+
+    if (type === "poems") {
+        contentBox.innerHTML = `
+        <h3>Wierszyk 1</h3>
+        <p>Tutaj wkleisz swój pierwszy wierszyk...</p>
+        `;
+    }
+
+}
 </script>
 
 </body>
