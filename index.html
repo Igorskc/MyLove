@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kochanieńka ❤️</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
 
 html, body {
     margin: 0;
-    height: 100%;
-    overflow: hidden;
-    font-family: "Montserrat", sans-serif;
+    min-height: 100%;
+    font-family: Montserrat, sans-serif;
     color: #fff;
 }
 
@@ -25,97 +23,95 @@ html, body {
     background-image: url("tlo.jpg");
     background-size: cover;
     background-position: center;
-    z-index: 0;
+    z-index: -2;
 }
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.2);
-    z-index: 1;
+    background: rgba(0,0,0,0.3);
+    z-index: -1;
 }
 
 /* KARTA */
 .wrapper {
-    height: 100%;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 16px;
-    position: relative;
-    z-index: 2;
+    padding: 40px 20px;
 }
-
 .card {
-    max-width: 520px;
-    width: 100%;
-    padding: 32px 28px;
+    width: 520px;
+    max-width: 95%;
+    padding: 30px;
     background: rgba(20,10,18,0.6);
     backdrop-filter: blur(14px);
-    border-radius: 26px;
+    border-radius: 25px;
     text-align: center;
 }
 
 /* PRZYCISKI */
 button {
-    margin-top: 14px;
+    margin-top: 12px;
     padding: 10px 18px;
     border-radius: 20px;
     border: none;
     cursor: pointer;
     background: rgba(255,255,255,0.25);
-    color: #fff;
-    font-size: 1rem;
-    transition: 0.3s;
+    color: white;
 }
 
-button:hover {
-    background: rgba(255,255,255,0.4);
-}
+/* PREZENT */
 
-/* KOMUNIKAT */
-#message {
-    margin-top: 12px;
-    font-size: 0.9rem;
-    opacity: 0.85;
-}
-
-/* ANIMACJA PREZENTU */
 .gift-box {
     font-size: 3.5rem;
-    margin-top: 10px;
-    transition: transform 0.6s ease, opacity 0.6s ease;
+    transition: 0.6s;
 }
-
 .opened {
     transform: scale(1.6) rotate(20deg);
     opacity: 0;
 }
-
 .hidden { display: none; }
 
-#contentBox {
-    margin-top: 18px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    animation: fadeIn 0.6s ease forwards;
+/* ZDJĘCIE */
+#birthdayPhoto {
+    width: 100%;
+    max-width: 260px;
+    border-radius: 15px;
+    margin: 10px auto;
+    display: block;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* KONFETTI */
+#confettiCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
 }
 
-/* MUZYKA */
-#musicBtn {
-    margin-top: 20px;
+/* KSIĄŻKA */
+#book {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
+}
+.book-page {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 10px;
+}
+.page {
+    white-space: pre-line;
+    text-align: left;
 }
 </style>
 </head>
-
 <body>
 
 <audio id="bgMusic" loop>
-    <source src="muzyka.mp3" type="audio/mpeg">
+    <source src="muzyka.mp3">
 </audio>
 
 <div class="parallax"></div>
@@ -130,21 +126,47 @@ button:hover {
 
 <button id="giftBtn">Odpakuj prezent</button>
 <div id="message"></div>
-
-<div id="giftOptions" class="hidden">
-    <button onclick="showCategory('stories')">📖 Opowiadania</button>
-    <button onclick="showCategory('poems')">✍ Rymowanki / Wierszyki</button>
-</div>
-
-<div id="contentBox"></div>
-
 <button id="musicBtn">🎵 Play</button>
 
+<div id="poemScreen" class="hidden">
+    <h2>🎂 Wszystkiego Najlepszego 🎂</h2>
+    <img src="zdjecie.jpg" id="birthdayPhoto">
+    <p>
+        Dziś jest Twój wyjątkowy dzień,<br>
+        więc niech spełni się każdy sen,<br>
+        Niech uśmiech nigdy nie znika,<br>
+        a szczęściu zawsze Cię dotyka.<br>
+        A dziś w dniu Twojego święta,<br>
+	spełnie każde Twe życzenie - zapamiętaj.💖
+    </p>
+    <button id="continueBtn">Dalej</button>
+</div>
+
+<div id="giftOptions" class="hidden">
+    <button onclick="openBook('stories')">📖 Opowiadania</button>
+    <button onclick="openBook('poems')">✍ Wiersze</button>
+</div>
+
+<div id="bookScreen" class="hidden">
+    <div id="book">
+        <div class="book-page">
+            <div id="page" class="page"></div>
+        </div>
+        <div id="bookControls" class="hidden">
+            <button id="prevBtn">←</button>
+            <span id="pageNumber"></span>
+            <button id="nextBtn">→</button>
+        </div>
+    </div>
+</div>
+
 </div>
 </div>
 
+<canvas id="confettiCanvas"></canvas>
+
 <script>
-// ===== MUZYKA =====
+// MUZYKA
 const music = document.getElementById("bgMusic");
 const musicBtn = document.getElementById("musicBtn");
 
@@ -155,7 +177,7 @@ document.addEventListener("click", function startMusic() {
     document.removeEventListener("click", startMusic);
 }, { once: true });
 
-musicBtn.addEventListener("click", () => {
+musicBtn.onclick = () => {
     if (music.paused) {
         music.play();
         musicBtn.textContent = "⏸ Pauza";
@@ -163,66 +185,869 @@ musicBtn.addEventListener("click", () => {
         music.pause();
         musicBtn.textContent = "🎵 Play";
     }
-});
+};
 
-// ===== PREZENT =====
-const unlockDate = new Date(2026, 2, 27, 0, 0, 0);
+// PREZENT
 const giftBtn = document.getElementById("giftBtn");
-const message = document.getElementById("message");
-const giftOptions = document.getElementById("giftOptions");
 const giftIcon = document.getElementById("giftIcon");
-const contentBox = document.getElementById("contentBox");
+const poemScreen = document.getElementById("poemScreen");
+const continueBtn = document.getElementById("continueBtn");
+const giftOptions = document.getElementById("giftOptions");
 
-giftBtn.addEventListener("click", () => {
+giftBtn.onclick = () => {
+    giftIcon.classList.add("opened");
+    setTimeout(() => {
+        giftBtn.style.display = "none";
+        giftIcon.style.display = "none";
+        startConfetti();
+        poemScreen.classList.remove("hidden");
+    }, 600);
+};
 
-    const now = new Date();
+continueBtn.onclick = () => {
+    poemScreen.classList.add("hidden");
+    giftOptions.classList.remove("hidden");
+};
 
-    if (now < unlockDate) {
+// KSIĄŻKA
+const stories = [
+`Po intensywnym dniu poszliśmy wtuleni spać. Odwróciłam się do Ciebie tyłem z nadzieją, że Ty jak w grze tetris uzupełnisz swoim ciałem wolną przestrzeń za mną. Nie musiałam długo czekać, wtuliłeś się we mnie, a Twoje długie ręce objęły moje rozgrzane już ciało. Spletliśmy dłonie, dostałam buziaka w ramię i zasnęliśmy. 
+Spało nam się cudownie, kiedy nad ranem poczułam coś twardego na swoich pośladkach. W pierwszej chwili to było uczucie delikatnego dyskomfortu, jakby kołdra zwinęła się w wałek i utknęła między nami, ale po chwili zorientowałam się, że to coś zupełnie innego. To Ty zaczynałeś się wybudzać 😁 
 
-        let diff = Math.floor((unlockDate - now) / 1000);
+I już wiem, że Ty też się zorientowałeś co się dzieje. Twoje ręce zaczęły wędrować po moim ciele, ugniatać piersi i masować łechtaczkę. Zacząłeś mnie dociskać do siebie, żebym poczuła jaki jesteś duży i twardy. Twoje usta całowały mój kark, a przez ciało przechodził dreszcz. Zanurzułeś palce w mojej szparce i już wiedziałeś, że jestem gotowa.. też się obudziłam.
 
-        const days = Math.floor(diff / 86400);
-        diff %= 86400;
-        const hours = Math.floor(diff / 3600);
-        diff %= 3600;
-        const minutes = Math.floor(diff / 60);
-        const seconds = diff % 60;
+I wtedy jakby połączeni magiczną więzią, w sposób zupełnie naturalny zaczęliśmy przybierać pozycję do kolejnego etapu zabawy. Wypinam pupę, Ty się nieco zsuwasz i wchodzisz we mnie tak delikatnie jak tylko Ty potrafisz. Jestem już tak mokra, że ociekam sokiem.
 
-        message.innerHTML =
-        `Prezent będzie możliwy do otwarcia za:<br>
-        ${days} dni ${hours} h ${minutes} min ${seconds} s`;
+Bez pośpiechu posuwasz  biodra do przodu i do tyłu dając nam szansę na powolną, ale jakże przyjemną pobudkę.
 
-    } else {
+Po dłuższej chwili podnosisz się i klękasz. Delikatnie łapiesz mnie za nogę, podnosisz ją i wchodzisz we mnie w pozycji bokiem.. jedną ręką trzymasz moją nogę w czasie gdy druga zaciska się na moim biodrze. Ja oczywiście masuję piersi 😅
 
-        // animacja
-        giftIcon.classList.add("opened");
+Teraz już jesteśmy porządnie obudzeni choć to dopiero 5 nad ranem. Twoje ruchy nabierają intensywności. Twój penis penetruje moją szparkę z tak dużą intensywnością, że zaczynam coraz głośniej jęczeć z rozkoszy. Czujesz jej zapach.. zaczynam masować swój guziczek żeby zintensyfikować doznania.. staję się coraz głośniejsza, a Ty przyspieszasz. Widzisz jak wiję się z rozkoszy, zagryzam wargę i słyszysz, jak resztkami sił wyszeptuję Twoje imię "och Igorrr..". Jest tak cudownie, że nawet nie myślimy o tym, że to pora spania 😁
 
-        setTimeout(() => {
-            giftBtn.style.display = "none";
-            giftIcon.style.display = "none";
-            giftOptions.classList.remove("hidden");
-            message.innerHTML = "Prezent został otwarty 💖";
-        }, 600);
+Nasze spojrzenia spotykają się i w tym momencie oboje wydajemy dźwięk, który oznacza, że znowu jesteśmy w tym samym miejscu.. lewitujemy.. jeszcze przez chwilę zostajesz we mnie i wpatrzeni w siebie mówimy "Kocham Cię". 
+
+Nasze ciała płoną. Kładziesz się obok mnie, ja rozczulona ze łzami w oczach kładę głowę na Twojej piersi, splatamy dłonie i tak ponownie zasypiamy.. 🍀🎀`,
+`Tego dnia las był wyjątkowo cichy.
+
+Nie paliłem w kominku od razu najpierw usiadłem przy oknie, patrząc jak zmrok powoli wślizguje się między drzewa. Wiedziałem, że przyjedziesz. Nie spieszyłem się więc z niczym, delektując się marzeniami w których jesteś Ty a bardziej My.
+
+
+
+Kiedy w końcu rozpaliłem ogień, w domku zrobiło się przytulnie. Ciepło zaczęło osiadać na ścianach, na meblach, we mnie. Standardowo poprawiłem poduszki i koc, nalałem wina do kieliszków i odpakowałem wiśnie w czekoladzie.
+
+
+
+Drzwi otworzyły się bez pośpiechu.
+
+Spojrzałem w Twoją stronę i od razu poczułem, jak wszystko we mnie mięknie.
+
+
+
+Jesteś… - powiedziałem ciszej, niż planowałem.
+
+
+Zdjęłaś kurtkę, poprawiłaś włosy i uśmiechnęłaś się tym swoim sposobem - takim, który sprawia, że człowiek zapomina, co miał przed chwilą w głowie i co chciał powiedzieć. Podeszłaś bliżej, a ja przyciągnąłem Cię do siebie, obejmując bez słów.
+
+
+
+Twoje czoło oparło się o moją pierś.
+
+Stałaś tak chwilę, oddychając spokojnie, jakbyś właśnie poczuła, że tu chciałaś wrócić bo tu czujesz swoje miejsce. Ja wtedy poczułem tę magię.
+
+Chwilę, w której wszystko idealnie do siebie pasuje i nie trzeba już niczego szukać, bo mam wszystko czego pragnę i na czym mi zależy najbardziej.
+
+
+
+Tęskniłam - powiedziałaś cicho.
+
+
+Unoszę Twoją twarz i całuję Cię powoli.
+
+Ten pocałunek nie był zachłanny.
+
+Był dokładnie taki, jak nasze spotkania - pełen znaczeń, namietny, głęboki.
+
+
+
+Siadamy razem na sofie. Ty bokiem, nogi podciągnięte, ja obok. Nasze łydki się dotykają, dłonie odnajdują się same. Ogień w kominku trzaska spokojnie, a ja czuję, że muszę powstrzymywać łzy będąc w tej chwili najszczęśliwszą osobą na świecie.
+
+
+
+Twoje palce przesuwają się po moim ramieniu.
+
+Moje po Twoich plecach.
+
+Każdy gest jest trochę wolniejszy niż normalnie.
+
+Skosztowaliśmy wina, zjedliśmy po pralince, rozmawiając i żartując w międzyczasie.
+
+
+
+Patrzę na Ciebie tym spojrzeniem, które mówi więcej niż słowa i które Ty dostrzegasz. Czujesz jak bardzo Cię kocham mimo że jeszcze tego o dziwo nie powiedziałem.
+
+
+
+Zacząłem lekko i uszczypliwe Ci dogryzć, aby zobaczyć jak wygląda efekt duszenia kotów w gifie. W końcu udało mi się do niego doprowadzić. Rzucasz się na mnie z uśmiechem na ustach a ja nieudolnie się bronię. Nasz śmiech echem słychać w całym lesie a my kontynuujemy naszą "walkę".
+
+
+
+Po chwili zmagań przytulam Cię do siebie z całej siły, wyznaję miłość pierwszy raz tego dnia i zaczynam całować. Z zabawy nagle przelismy do czułości i wielkiej namiętności, nagle wszystko inne przestało istnieć. Nie było miejsca, czasu ani świata dookoła. Były tylko nasze ciała, instynktownie odnajdujące siebie nawzajem, dotyk mówiący więcej niż jakiekolwiek słowa. Poczuliśmy tę samą wyjątkową chwilę, w której wszystko się łączy.
+
+Jakby dwie drogi spotkały się w jednym miejscu i od tej pory prowadziły już razem.
+
+
+
+Zaczęliśmy się rozbierać ściągając z siebie dość powolnie górę a potem dół i wróciliśmy do wspólnych objeć, pocałunków i dotyku.
+
+
+
+Lubię, kiedy tak jest - mówisz po chwili.
+Ja też - odpowiadam bez wahania.
+
+
+Ogień przygasa, kieliszki stoją zapomniane na stole, a ja mam w głowie tylko jedną myśl: 
+
+Że każde kolejne spotkanie z Tobą nie musi być podobne do poprzedniego - Wystarczy, że jest prawdziwe.
+
+
+
+Twoje dłonie wędrują śmielej, moje wciąż nieśmiale i bez pospiechu co zauważasz i łapiąc mnie za dłoń kierujesz ją pomiędzy swoje uda. Zacząłem Cię pieścić.
+
+
+
+Chciałem najpierw się przywitać - zażartowałem, chociaż nie do końca.
+Tak? - odpowiedziałaś wiedząc co mam na myśli.
+
+
+Wskoczyłaś na mnie, bardzo delikatnie pośladkami siadając na mojej klatce pierioswej.
+
+No to się witaj - powiedziałaś
+Ja od razu z chęcią pocałowałem Twoją piękna i wilgotną cipkę, językiem zacząłem pieścić pierw wargi a później guziczek co Cię rozpaliło na tyle by zakończyć tą przyjemność i iść krok dalej.
+
+
+
+Standardowo dla nas usiadłaś na mnie a Twoje ciało falowało w przód i tył początkowo spokojnie niczym przypływ i odpływ na morzu a z czasem znacznie szybciej i intensywniej jak podczas sztormu.
+
+
+
+Podstępnie puściłem Ci buziaka co skłoniło Cię by się nachylić i mnie pocałować a ja Cię wtedy objąłem, podkurczyłem nogi i szybkimi i intensywnymi ruchami bioder poruszałem się góra i dół będąc cały czas w objeciu i pocałunku z Tobą.
+
+
+
+Doznania były na tyle przyjemne że postanowiłaś się odwdzięczyć w podobny sposób odwracając się do mnie tyłem i zaczynając mnie ujeżdżać. Po chwili nadszedł moment kulminacyjny gdy podkulilaś nogi jeszcze bardziej, usiadłaś jeszcze szerzej i zaczęłaś twerkować ze mną w środku, masować guziczek i wydając dźwięki rozkoszy. Ten widok jako moja jedna z fantazji równie szybko dobrowadzil mnie do celu i pozostawił w zastanawieniu czy kiedyś Ci powiem czemu tak na mnie działa.
+
+
+
+Po wszystkim świat wracał powoli, jakby nie chciał nam przeszkadzać. Leżałaś obok, ciepła, spokojna, a ja czułem ten znajomy spokój, który pojawia się tylko wtedy, gdy wszystko jest na swoim miejscu.
+
+
+
+Przyciągnąłem Cię bliżej i wtuliłaś się we mnie bez słów. Twoja głowa znalazła oparcie tam, gdzie zawsze, a ja objąłem Cię ramieniem, jakbym chciał zatrzymać tę chwilę na dłużej.
+
+
+
+Oddychaliśmy już spokojniej.
+
+Cicho, równo, a co najważniejsze - razem.
+
+
+
+Palcem ponownie rysowałaś powolnie wzory na mojej skórze, a ja czułem, jak wraca ta miękka cisza, pełna bliskości i czułości. Taka, w której nie trzeba nic mówić, bo wszystko już zostało powiedziane wcześniej.
+
+
+
+Pochyliłem się i pocałowałem Cię w czoło.
+
+
+
+Kocham Cię - wyszeptałem
+
+
+Uśmiechnęłaś się tylko lekko i przysunęłaś jeszcze bliżej, jak odpowiedź, której nie trzeba było ubierać w słowa.
+
+
+
+I wtedy pomyślałem, że właśnie takie chwile są najważniejsze.
+
+Nie te głośne, nie te intensywne.
+
+Tylko te ciche, kiedy wszystko już się wydarzyło, a my nadal chcemy być  dokładnie tu – razem.`,
+`Tego wieczoru chciałem zrobić wszystko idealnie.
+
+Rozpaliłem w kominku, ten ciepły, pomarańczowy blask ognia w salonie, zawsze kojarzy mi się z nami. Ułożyłem poduszki, poprawiłem koc, przygotowałem dla nas miejsce, jakby miał to być mały rytuał tylko dla dwojga. Który zaczyniemy od obserwacji natury za oknem i żartami o lisach bez nogi.
+
+
+
+Miałaś być za kilkanaście minut.
+
+A ja, z niecierpliwością czekam na Ciebie… 
+
+Sprawdzałem co chwila godzinę, wsłuchiwałem się w każdy dźwięk lasu, zastanawiając się, kiedy otworzysz drzwi.
+
+
+
+Mijały minuty, potem jeszcze kilka.
+
+Ciepło kominka i stres który już ze mnie schodził, zaczęły mnie otulać jak kołdra.
+
+Usiadłem na sofie z myślą, że tylko na chwilę zamknę oczy i pomyślę o Tobie.
+
+Tylko na sekundę…
+
+
+
+Nie wiem kiedy zasnąłem.
+
+
+
+Ocknąłem się dopiero wtedy, gdy poczułem coś miękkiego na ramieniu i zapach Caroliny Herrery - Good Girl.
+
+Otworzyłem oczy i… byłaś tam. Tuż obok mnie.
+
+Siedziałaś przy moim boku z tym swoim lekko rozbawionym uśmiechem, jakbyś od dawna obserwowała, jak walczę z sennością.
+
+
+
+W tej chwili serce dosłownie mi podskoczyło.
+
+To nie była zwykła radość.
+
+To była ta głęboka, ciepła fala, która mówi: jesteś tu… naprawdę jesteś.
+
+Uśmiechnąłem się szerzej, niż ktokolwiek miał prawo po przebudzeniu.
+
+— Jestem - odpowiedziałaś i wsunęłaś się pod mój koc, przytulając się do mnie.
+
+
+
+Czułem tylko ciepło twojego ciała pomimo, że było jeszcze delikatnie chłodne od świeżego powietrza na zewnątrz. Już wtedy nadeszło odczucie że zaczynam unosić się nad ziemią w pełni szczęścia a na buzi pojawił się uśmiech od ucha do ucha.
+
+
+
+Nachyliłaś się i musnęłaś moje usta.
+
+Pocałunek był spokojny, delikatny, trochę jak powitanie, trochę jak „przepraszam, że tak długo”, ale najbardziej jak: już jestem, Kochanieńki, cała dla Ciebie.
+
+
+
+— Widzę, że tęskniłeś — szepnęłaś z lekkim uśmiechem.
+
+— No tak — odpowiedziałem przyciągając cię bliżej, aż twoje ciało ułożyło się na moim. 
+
+
+
+Nasze twarze będąc tak blisko siebie nie mogły się nie spotkać a my nie chcieliśmy ich powstrzymać. Pocałunek zaczął się spokojnie, ale czułem, jak twoje palce zaciskają się lekko na mojej koszulce, jakbyś chciała przyciągnąć mnie jeszcze bliżej a z każdą sekundą było bardziej namiętniej.
+
+
+
+Twoje kolana zetknęły się z moimi, a potem jednym płynnym ruchem usiadłaś okrakiem na moich udach. Oplotłaś mnie ramionami, a ja jedną dłonią położyłem na twoich plecach a drugą na twoim biodrze. Kciukiem przesunąłem po linii pleców.
+
+Objąłem cię pod pośladkami i przyciągnąłem jeszcze bliżej, tak że twoja klatka piersiowa dotykała mojej by czuć Cię jeszcze bardziej.
+
+
+
+Ściągnęlismy z siebie nawzajem górę, a moje usta zsunęły się z Twoich na szyję, na obojczyk docierają do piersi. Na nogach czułem chyba wszystkie mrówki z pobliskiego lasu, a Ty już czułaś że ja je czuję co spowodowało że zeszłaś by ściągnąć sspodnie i szarpiąc mnie za nogawkę pomogłaś pozbyć się moich. 
+
+
+
+Wróciliśmy do poprzedniej pozycji i ponownych namiętnych pocałunków. Delikatny klaps w miękki pośladek spowodował, że Twoje biodra powoli kołysały się na moich żeby troszkę się podroczyć co zarazem mi się podobało i wzbudzało jeszcze większą ochotę na Ciebie. 
+
+
+
+— Zjadłbym Cię — szepnąłem dając kolejnego klapsa. 
+
+
+
+I w tej chwili nie było już domu, kominka, lasu. Było tylko ciało szukające ciała. Dotyk szukający dotyku. Dwoje ludzi, którzy odnajdują siebie dokładnie tam, gdzie kończą się słowa.
+
+Po czym poczułem że już jestem w Tobie i tą magię gdzie już nie ma Ciebie i mnie a jesteśmy My.
+
+Odchyliłaś się lekko do tyłu, opierając dłonie o moje uda, moje dłonie spoczęły na Twoich piersiach masując je delikatnie. Twoje ciało poruszało się teraz delikatnie szybciej i intensywniej. Każdy ruch był jak szept wypowiadany naszym wspólnym rytmem nastrajając nasze ciała przed koncertem miłosnym który miał niebawem nadejść.
+
+
+
+Wstajęsz, odwracasz się, opierasz o stół po czym patrzysz na mnie ze wzrokiem który mówi: "na co czekasz?". Ja gwałtownie, z pośpiechem ruszyłem w Twoim kierunku po czym całuje Twoją szyję, plecy, ponownie odwracasz głowę i się całujemy, przygryzamy sobie wargi, czując zbliżające  się  spełnienie. Wchodzę w Ciebie, poczatkowo poruszamy się znów wspólnym rytmem, powoli…
+
+Z czasem coraz szybciej, głośniej, mocniej…
+
+
+
+Nadeszła moja kolej na zmianę zatem położyłem Cię na sofie, podłożyłem pod biodra poduszkę, drugą poduszkę podłożyłem pod ramiona. Delikatnie rozsunąłem Ci nogi, chcąc mi pomóc, lekko je podciągnęłas i po chwili poczułaś, jak w Twoim gniazdku z impetem zainstalowałem swoje narzędzie.😂 Zacząłem powoli zwiększając stopniowo obroty. Twoje pojękiwanie tylko dodawało mi sił i chęci by podkręcić tępo na maksa które utrzymywałem przez chwilę po czym wracałem do spokojniejszych i głębszych pchnieć podczas których pieściłem Twój guziczek.
+
+
+
+Czułem że już jestem blisko, przekręciłem Cię na brzuch podkladajac poduszki pod podbrzuszem wszedłem od tyłu tym razen intensywnie i głęboko od samego początku. Twoje odgłosy również stały się bardziej intensywne a ręka zaczęła omijać poduszki by dotrzeć do guziczka, co dało mi jasną informacje że również jest Ci dobrze i blisko. Moje tępo wzrastało z każdym pchnięciem do samego końca, w całym domku już unosił się równie intensywny zapach naszej miłości dźwięk Twojego pojękiwania który się zwiększał wraz z moimi ruchami, dziwięk obijających się ciał i moje sapanie.
+
+W końcu wydałaś ten niebiański odgłos który zarazem wyzwoli we mnie ten sam efekt końcowy - doszliśmy w tym samym czasie. 
+
+
+
+Odwróciłaś się po wszystkim a ja padłem na Ciebie wtulając się i całując w czółko powiedziałem "Kocham Cię" i zsunąłem się obok Ciebie. Położyłaś głowę na mojej piersi, palcem zaczęłaś rysować wzory na mojej skórze i wyszeptałaś: "Ja Ciebie też kocham". Objąłem Cię ramieniem a splecione dłonie ułożyły się między nami. 
+
+W tej chwili myślałem już tylko jednym:
+
+— Nie ma nic lepszego niż budzić się i zasypiać przy Tobie. Nawet jeśli tą chwilę muszę wyczekać przy kominku`,
+`Idę do Ciebie.. wślizguje się pod kołdrę i chwytam w dłoń Twojego członka.. usta całują tors, szyję, język wędruje po uchu żeby zwiększyć doznania bo oddech coraz szybciej wyrzuca powietrze, które w kontakcie z wilgotnym uchem zwiększa przepływ krwi w organie w mojej dłoni..
+Przechodzę do ust.. delikatnie kąsam, zaczepiam.. pocałunki są bardzo delikatne, języki muskają się jakby w powietrzu.. moja ręka cały czas masuje Twojego członka
+Usta przechodzą znowu w kierunku ucha, szyi.. jestem bardzo delikatna ale pieszczoty nabierają już intensywności, bo jest późno
+Siadam okrakiem, teraz czujesz gorącz mojego krocza.. płonie.. nie jesteś w środku ale wiesz, że jest tam mokro i gorąco..
+Siedzę i zaczepiam ale nie wpuszczam do środka.. patrzę Tobie w oczy i zagryzam wargi.. biorę Twoje dłonie i kładę na swoich piersiach..
+Miednica się buja i już ciężko nam wytrzymać.. wchodzisz.. czujesz mnie dobrze..
+Kołysze się a Ty pieścisz moje ciało.. widzisz moje grymasy na twarzy spowodowane ogromnym podnieceniem
+Wzdycham i pomagam Tobie z pieszczotami.. przejmuję kontrolę nad piersiami a Ty chwytasz mnie za biodra i przejmujesz kontrolę nad ruchami.. nad intensywnością
+Jeszcze się nie spieszymy.. aż tak bardzo
+Słyszysz moje pojekiwanie.. patrzę na Ciebie..
+Dokończymy to w tej pozycji..
+Zabieram Twoje ręce i kładę za głowę.. przejmuję kontrolę
+Znowu całuje Twoje usta, biodra podskakują, pośladki klaszczą 😅 a piersi obijaj się o Ciebie
+Prostuje ciało, żeby teraz wygiąć się do tyłu.. siadam tak mocno, że jesteś cały we mnie..
+Jeszcze chwila.. dasz radę
+Zabierasz rękę znad głowy i wykorzystujesz okazję, żeby pomasować mój guziczek jesteś delikatny, ale szybko pokazuję Tobie jak to robić..
+Czuję, że zaraz tam będę.. i zabieram Ciebie ze sobą.. siadam pewnie i przyspieszam.. podskakuje I całe ciało ze mną.. czujesz żar i zapach tego co z nas tryska
+Moje jęki.. mój oddech.. zapach..
+Jesteśmy tam Igor
+Zabrałeś mnie pod sufit.`,
+`Po intensywnym dniu poszliśmy wtuleni spać. Odwróciłam się do Ciebie tyłem z nadzieją, że Ty jak w grze tetris uzupełnisz swoim ciałem wolną przestrzeń za mną. Nie musiałam długo czekać, wtuliłeś się we mnie, a Twoje długie ręce objęły moje rozgrzane już ciało. Spletliśmy dłonie, dostałam buziaka w ramię i zasnęliśmy. Spało nam się cudownie, kiedy nad ranem poczułam coś twardego na swoich pośladkach. W pierwszej chwili to było uczucie delikatnego dyskomfortu, jakby kołdra zwinęła się w wałek i utknęła między nami, ale po chwili zorientowałam się, że to coś zupełnie innego. To Ty zaczynałeś się wybudzać 😁 I już wiem, że Ty też się zorientowałeś co się dzieje. Twoje ręce zaczęły wędrować po moim ciele, ugniatać piersi i masować łechtaczkę. Zacząłeś mnie dociskać do siebie, żebym poczuła jaki jesteś duży i twardy. Twoje usta całowały mój kark, a przez ciało przechodził dreszcz. Zanurzułeś palce w mojej szparce i już wiedziałeś, że jestem gotowa.. też się obudziłam. I wtedy jakby połączeni magiczną więzią, w sposób zupełnie naturalny zaczęliśmy przybierać pozycję do kolejnego etapu zabawy. Wypinam pupę, Ty się nieco zsuwasz i wchodzisz we mnie tak delikatnie jak tylko Ty potrafisz. Jestem już tak mokra, że ociekam sokiem. Bez pośpiechu posuwasz biodra do przodu i do tyłu dając nam szansę na powolną, ale jakże przyjemną pobudkę. Po dłuższej chwili podnosisz się i klękasz. Delikatnie łapiesz mnie za nogę, podnosisz ją i wchodzisz we mnie w pozycji bokiem.. jedną ręką trzymasz moją nogę w czasie gdy druga zaciska się na moim biodrze. Ja oczywiście masuję piersi 😅 Teraz już jesteśmy porządnie obudzeni choć to dopiero 5 nad ranem. Twoje ruchy nabierają intensywności. Twój penis penetruje moją szparkę z tak dużą intensywnością, że zaczynam coraz głośniej jęczeć z rozkoszy. Czujesz jej zapach.. zaczynam masować swój guziczek żeby zintensyfikować doznania.. staję się coraz głośniejsza, a Ty przyspieszasz. Widzisz jak wiję się z rozkoszy, zagryzam wargę i słyszysz, jak resztkami sił wyszeptuję Twoje imię "och Igorrr..". Jest tak cudownie, że nawet nie myślimy o tym, że to pora spania 😁 Nasze spojrzenia spotykają się i w tym momencie oboje wydajemy dźwięk, który oznacza, że znowu jesteśmy w tym samym miejscu.. lewitujemy.. jeszcze przez chwilę zostajesz we mnie i wpatrzeni w siebie mówimy "Kocham Cię". Nasze ciała płoną. Kładziesz się obok mnie, ja rozczulona ze łzami w oczach kładę głowę na Twojej piersi, splatamy dłonie i tak ponownie zasypiamy.. 🍀🎀`,
+`Nadszedł mój wymarzony dzień - dzień naszego pierwszego spotkania. Umówiliśmy się na wspólny weekend w Warszawie. Mieliśmy się spotkać na miejscu w hotelu ale w końcu umówiliśmy się na spacer w około Zalewu więc przyjechałaś najpierw do Skierniewic. Moment gdy się zobaczyliśmy pierwszy raz był lekko niezręczny i nieśmiały na obojga z nas, godzinny spacer zakończony ciepłym napojem rozluźnił na tyle atmosferę że już w drodze do punktu docelowego byliśmy już sobą i oboje uznaliśmy że był to świetny pomysł. Na miejscu odebraliśmy pokój i do niego poszliśmy. Pierwsze co to umyliśmy ręce (specjalnie dla Ciebie), i żartując przeszliśmy dalej. Czułem euforię i ogromną radość że się zgodziłaś i do tego doszło ale nie wiedziałem jak to powiedzieć i Ci za to podziękować. Przełamałem się na tyle by nieśmiało do Ciebie podejść chcąc się przytulić i Cię pocałować, na co mi pozwalasz. Pocałunek z minuty na minuty staje się co raz bardziej namiętny, a nasze dłonie na wzajem badają nasze ciała. Ściągasz mi bluzkę co daje mi jasny znak z zielonym światłem więc zaczynam ściągać ją również Tobie, rozpinam stanik zsuwam oba ramiączka i delikatnie zsuwam go w dół. Moim oczom ukazują się Twoje piękne piersi, rozbierając Cię dalej zacząłem je całować i masować, delikatnie zataczając kółeczka języczkiem w około sutków i raz po raz delikatnie je przygryzając. Z czasem moje ręce przeszły niżej, na brzuch, pośladki i uda. Położyłaś się i rozłożyłaś delikatnie nogi. Ja pieszcząc ustami piersi, dłonią schodziłem niżej i aż w końcu dojechałem do Twojego skarbu, zacząłem go masować, patrząc Ci głęboko w oczy z czułością zacząłem całować Twe usta. Po dłużej chwili położyłem się na plecach zachęcając Cię do zmiany, zrozumiałaś dokładnie o co mi chodzi i zaczęłaś ściągać mi spodnie po czym odwróciłaś się okraczając mnie między kolanami. Zajęłaś się mną a ja zacząłem delikatnie zbliżać swoje usta, całując najpierw wargi sromowe, a później delikatnie muskać łechtaczkę. Z czasem dodałem do tych pieszczot mój język, który zaczął wirować wewnątrz, a później zataczać kółeczka wokół guziczka. Pozostając tyłem do mnie usiadłaś na nim, wypięła delikatnie w moją stronę zaczęłaś od delikatnych ruchów miednicą w przód i tył po czym przyspieszając tępo dodajesz kolejne ruchy swoim ciałem. Z czasem odwróciłaś się przodem do mnie co spowodowało mój nieśmiały uśmiech który był inicjatorem namiętnych pocałunków. Ja podkulilem nogi i przejąłem inicjatywę narzucając intensywne szybkie tempo na pewien czas, gdy już zacząłem czuć lekkie zmęczenie przeszliśmy do pozycji bocznej by troszkę odpocząć. Kochając się spokojnie i namiętnie pieszczę ręka delikatnie Twój guziczek. Odzyskując siły przekręciłem Cię na brzuch a Ty podkulilaś nogi i wypiełaś w moją stronę, ja bez zastanowienia wszedłem w Ciebie najbardziej intensywnie do tej pory utrzymując to aż do samego końca. Po wszystkim w objęciach leżeliśmy wpatrzeni w siebie nawzajem z nadzieją że to uczucie i ta chwila będzie wieczna.`,
+`Chwilę wcześniej widziałam Ciebie w lustrze.. wypłukałam zęby, podniosłam głowę, patrzę na Ciebie w lustrze, uśmiecham się, wypinam pupę w Twoją stronę i mówię "no wejdź, nie wstydź się" 😊
+Podchodzisz, czule obejmujesz moje ciało, wymierzasz konarem i już jesteś w środku
+Delikatnie poruszasz biodrami przód tył i widzisz w lustrze moje spojrzenie
+Zagryzam wargi i wyraźnie jestem spragniona pieszczot
+Przyblizasz się i łapiesz mnie jedną ręką za piersi penetrując moją mokrą cipkę
+Całujesz mnie po karku i podnieca Ciebie jak wzdycham z rozkoszy
+Nagle odsuwam się, wyginam mocniej do tyłu i mówię "rżnij mnie Igor tak mocno jak potrafisz"..
+Chwytasz mnie mocno za biodra i włączasz swój najszybszy bieg, pchając tak mocno że krzyczę z podniecenia
+Tak! Mocniej! Igorrrr.. taaaaaak
+I czuję jak mnie w środku parzy z rozkoszy i tarcia jakie powoduje Twój nabrzmiały penis
+Jestem bliska celu..
+Pomagam sobie ręką, pocieram guziczek I czuję
+Ostatni jęk i osiągam stan, którego nie rozumie żaden facet
+W powietrzu unosi się zapach mojej cipki a Ty ledwo oddychasz, bo włożyłeś całego siebie.. wielokrotnie raz za razem.`,
+`Czujesz, że stoję za Tobą.. dotykam dłonią Twojego ramienia, zaciskam na nim palce i już wiesz, że na pewno tu jestem i będziesz miał trudności ze skupieniem.. teraz dłoń przeczesuje Twoje włosy, bawię się nimi przez chwilę.. schylam się do Twojego ucha, całuję je czule..schodzę do szyi, czujesz, że Twoja krew buzuje.. moja już od dawna 😅 Moje ręce wędrują po Twojej klatce piersiowej..
+Docierają do Twojego miejsca, gdzie teraz jest centrum dowodzenia Igora 😁 łapię dobrze znany mi kształt i czułe ściskam.. moje usta czule pieszczą Twoje ucho i kark..
+Nagle słyszysz szept "chodź Igor.. zabiorę Ciebie do mojego świata .."
+Chwytam Ciebie za rękę i prowadzę w stronę łóżka.. siadasz.. a ja na Tobie.. czuję Twojego nabrzmiałego penisa..
+Całuję Ciebie namiętnie, a Ty odwzajemniasz moje pieszczoty.. moje ciało faluje drażniąc się troszkę, żeby zwiększyć napięcie..
+Pomagasz ściągnąć mi bluzkę i stanik, idzie nam to bardzo sprawnie i już ściągamy Twoją bluzkę
+Nasze nagie ciała spotykają się.. jest cieplutko i mięciutki.. czuję jak płonę..
+Całujesz i pieścisz dłonią moje piersi
+Jakimś cudem udaje się Tobie przekręcić nas i teraz ja leżę na łóżku a Ty na mnie.. czuję jak dociskasz do mnie swojego penisa i teraz Ty drażnisz się ze mną..
+Sięgasz ręką pod moje majtki i zaczynasz palcami penetrować moją gorącą jak piekło cipkę.. czujesz, że ocieka sokami..
+Jęcze i wyginam się z rozkoszy.. nie przestawaj.. Twoje usta pieszczą moje ciało
+Ściągasz mi spodnie i za chwilę sam wyskakujesz z dresów 😅
+Zbliżasz się do mnie i wsuwasz swojego twardego jak skała penisa.. spokojnymi, rytmicznymi ruchami wchodzisz we mnie i patrzysz jak rozpływam się
+Bawię się piersiami, a po chwili moja ręka wędruje w kierunku guziczka.. zagryzam wargi to znak, że jest mi naprawdę dobrze..
+widzisz, że jestem bliska orgazmu i decydujesz się przeciągnąć tę chwilę.. wychodzisz ze mnie, przekręcasz mnie na brzuch.. delikatnie przesuwasz dłoń wzdłuż mojego kręgosłupa fundując mi ciarki na całym ciele.. podnosisz moje biodra i pewnym ruchem wchodzisz we mnie raz jeszcze.. tym razem ruchy są bardziej intensywne..
+Zaciskasz dłonie na moich biodrach i przyspieszasz.. jeczę z rozkoszy, czuję jak nie mogę złapać powietrza
+Moje ciało wibruje, oboje jesteśmy rozpaleni i w tym samym czasie odlatujemy w stronę sufitu 🫠
+Słyszysz strzał moich palcow od stóp i masz pewność że już tam jestem 😂 (tak reaguje moje ciało, skurcz w stopach i często strzelają stawy.w palcach) 🙈
+Wysuwasz się ze mnie i kładziesz na moich pośladkach.. zostajemy przez moment w tej pozycji, żeby po krótkiej chwili nasze usta znowu się spotkały.. wtuleni, obdarowując się namiętnymi pocałunkami leżymy jeszcze kilka minut`,
+`To nasze kolejne spotkanie. Musieliśmy na nie długo czekać, więc emocje są ogromne. Tak bardzo tęsknię i pragnę wtulić się w Ciebie Słodziaku.. Udało nam się wynająć malutki domek w środku lasu, z wielkim oknem na polanę. Domek, las i my.. droga mija nam szybko choć musieliśmy zatrzymywać się na czułości, żeby zaspokoić choć w niewielkim stopniu swoje potrzeby a przede wszystkim ukoić to uczucie tęsknoty. Wysiadamy z auta, buzie uśmiechnięte, usta spuchnięte od pocałunków 😊 Rozejrzelismy się dookoła i już wiedzieliśmy, że to będzie idealne miejsce na wspólny weekend.
+W środku okazało się, że jest dość chłodno i zaoferowałeś, że rozpalisz w kominku. Ja w tym czasie umyłam ręce i rozpakowałam walizkę 😁
+Jak już ogień płonął oznajmiłeś, że idziesz szybko pod prysznic. Ja w tym czasie byłam jeszcze czymś zajęta
+W domku było jeszcze dość chłodno, a woda pod prysznicem na pewno była ciepła, więc postanowiłam że zrobię Tobie niespodziankę i dołączę. Niczego się nie spodziewałeś, byłeś zaskoczony kiedy weszłam do łazienki z przyklejonym uśmiechem. Rozebrałam się i szybciutko dołączyłam do Ciebie żeby rozgrzać się..
+Nasze spotkanie pod prysznicem zaczęło się oczywiście od pocałunków i dotyku.. ręce błądziły po ciele chcąc odkryć każdy jego kawałek, przypomnieć sobie jak ono wygląda. Czułam że konar płonie 😁
+Ciepła woda obmywała nasze ciała, para unosiła się już w całym pomieszczeniu.. było naprawdę gorąco..
+Chwyciłeś mnie za posladki i mocno przyciągnąłes do siebie po czym zacząłeś całować mnie po szyi. Jedną ręką zacząłeś masować moją łechtaczkę wiedząc, że to na pewno sprawi że stanę się jeszcze bardziej mokra. Czułeś jak uginają mi się nogi więc pomalutku podeszliśmy bliżej ściany i zadbałeś o tym, żebym miała podparcie za plecami..
+Pocałunkami zacząłeś schodzić coraz niżej i niżej.. uniosłeś moją nogę żeby dostać się mojej wadżajny.. zacząłeś ją całować i penetrować językiem.. w tym czasie ja masuję i ugniatam swoje piersi.. po chwili poczułam w sobie Twoje palce i wiedzialam, że chcę więcej, że jestem na to gotowa.. moje dłonie podniosły Twoją głowę, żebyś spojrzał w moje oczy i zobaczył, że jestem gotowa
+Wstałeś, docisnales mnie do ściany i wszedłeś we mnie.
+To była chwila na którą czekałam tak długo. Patrzyłeś mi w oczy i dociskałeś raz za razem.. nasze usta spotkały się, mokre ciała drżały z rozkoszy.
+Kiedy poczułeś się już trochę zmęczony 😚 wyszedłeś ze mnie i zapytałeś jak teraz bym chciała. Tym razem to ja oparłam Ciebie o ścianę i pomalutku całując każdy kawałek Twojego ciała zeszłam na dół, żeby zająć się płonącym konarem. Chwyciłam go w dłoń i delikatnie masowałam żeby po chwili zacząć całować.. opłotłam go swoimi ustami i zaczęłam pieścić językiem. Słyszę jak przyspieszył Tobie oddech i cichutko pomrukujesz.. wiem, że jest Tobie dobrze
+Po krótkiej chwili dajesz mi znać żebym wstała. Wymieniamy się kolejnymi pocałunkami, a Ty nabierasz sił na kolejną zabawę.. tym razem opieram się o ścianę rękoma i wypinam do Ciebie żebyś łatwo mógł wejść i dokończyć naszą zabawę.. wchodzisz i z tą pewnością siebie w oczach zaczynasz doprowadzać mnie do apogeum rozkoszy.. czuję Ciebie tak głęboko, że naciskasz wszystkie możliwe punkty.. jęczę z rozkoszy w znany Tobie sposób i proszę żebyś nie przestawał.. czuję jak moje ciało płonie, moja głowa odlatuje.. chcę żebyś odleciał ze mną..
+Przyspieszasz i już słyszę, że jesteśmy tam razem.. lewitujemy w emocjach, które ciężko opisać.. w powietrzu oczywiście czuć zapach naszej miłości..
+Odwracam się do Ciebie i wtulam tak mocno jak tylko potrafię. Nasze usta znowu się spotykają, ale tym razem potrzebujemy krótkich przerw na złapanie oddechu..
+Patrzę Tobie w oczy i mówię.. "Kocham Cię.. a teraz ogarnij się i widzimy się za chwilę" 😁😂`,
+`W trakcie pisanie, Kocham Cię`
+
+];
+
+const poems = [
+`Dzień dobry, moja szczęściu, wstał nowy dzień,
+
+Mam nadzieję, że w snach dziś spotkaliśmy się,
+
+Że jesteś wyspana a teraz uśmiechasz się, 
+
+I tak zostanie na całlutki dzień.
+
+
+
+Dziękuję Ci, Kochanieńka, za to, jak mnie traktujesz,
+
+Za każde Twe słowo, które moją pewność buduje.
+
+Za gesty tak ciepłe, że topią mój strach,
+
+Za troskę, co koi - jak słońce po mgłach.
+
+
+
+Przy Tobie się czuję wyjątkowy, jedyny,
+
+Jakbym się przeniósł do pięknej krainy.
+
+Bo sposób, w jaki to robisz mówi więcej niż słowa,
+
+I sprawia, że dzień za uśmiechem - nieśmiało się chowa.
+
+
+
+Jesteś jak słońce w terrarium duszy,
+
+Gdy pomyślę o Tobie, moje serce się wzruszy.
+
+A jeśli tak się mam czuć - mogę płakać co dzień,
+
+Bo łzy ze szczęścia przy Tobie wcale nie są złe.
+
+
+
+Tak wiele mi dajesz - to więcej niż sny,
+
+Gdy sama z siebie ofiarujesz mi tak piękne dni.
+
+A ja choć nie umiem oddać wszystkiego sposobem tym samym,
+
+To wiedz, że kocham Cię, skarbie - najmocniej, sercem Ci oddanym. 🫶
+
+
+
+Twój 🐼, co wciąż dzień dziecka ma i śniąc o Tobie, uśmiecha się a myślami przy Tobie trwa.`,
+`Dziękuję Ci, Karra, za serce bez granic,
+
+Za cierpliwość, szczerość - za to, że trwasz przy mnie, zanim
+
+Los da nam spotkanie - i połączy ścieżki na nim,
+
+Dziękuję Ci za ciepło, pomoc i siłę,
+
+Za to, że trwasz przy mnie - tak szczerze, tak mile.
+
+
+
+Rozpływam się w Tobie, gdy mówisz czule,
+
+Czuję Cię w duszy, a w myślach tulę,
+
+Gdy w grze podążam śladem Twych kroków,
+
+W realu jesteś - oazą wśród mroku,
+
+Zielona kropka znów w sercu mi świeci,
+
+Bo wiem, że tam jesteś - mój wszechświat w sieci.
+
+
+
+Wśród węży i jaszczurek Twój świat się budzi nocą,
+
+A ja marzę, by kiedyś przybyć z pomocą, 
+
+By słyszeć Twój śmiech, Twój głos ukochany,
+
+I razem z Tobą odpływać, w opowieści z wanny. 
+
+
+
+Jesteś lekiem na całe zło, co umila mój dzień,
+
+Z Tobą każdy smutek znika, jak cień.
+
+Wiem, że ta trudność nie zburzy nas,
+
+A tylko nauczy - jak kochać w czas.
+
+Bo jeśli przetrwaliśmy burzę i łzy,
+
+To przyszłość przed nami… piękniejsza niż sny.
+
+
+
+Twój 🐼, co każdą chwilę z Tobą w sercu i pamięci nosi, a nawet w snach o Twą miłość prosi. Kocham Cię.❤️`,
+`Czekam, aż się pojawisz - myśli krążą mi od rana,
+bo tęsknię za tym momentem, gdy znów pisze do mnie moja ukochana.
+Czekam w domku na Ciebie, aż wejdziesz tu znów,
+bo w Twoim spojrzeniu jest coś, co od razu porusza mój świat i mój ruch.
+Siadasz obok mnie powoli, a serce robi swój rytm,
+bo każdy Twój gest ma w sobie coś miękkiego, co budzi we mnie ogień i wstyd.
+A gdy nachylasz się bliżej, tak blisko przy mojej skórze,
+to wszystko we mnie rośnie - i wiem, że zaraz wydarzy się coś, co pragnę, i pragnąć będę dłużej.
+Twój pocałunek ma w sobie ogień, co rozlewa się po skórze,
+i wtedy każda myśl milknie – zostaje tylko pragnienie, które chce trwać dłużej.
+Dotykasz mnie lekko, jakbyś badała każdy fragment dłonią,
+a moje ciało odpowiada na to napięciem, następnie chwilę przychodzą z ukoją.
+Kiedy przesuwasz palcami po szyi, ramionach, wzdłuż torsu w dół,
+to czuję, jakby ten moment istniał tylko dla nas, jakbyśmy właśnie przekraczali cienką granicę zmysłów i słów.
+Twoje palce zostawiają za sobą ciepło, które rozlewa się szerzej,
+i wiem, że jeszcze chwila, a całe moje ciało powie Ci to, czego słowami nie powiem tak szczerze.
+Przyciągam Cię bliżej, bo w tej bliskości jest cały mój świat,
+ten, który tworzymy pocałek po pocałunku, dotyk po dotyku, aż zatrzyma się czas z nadzieją że potrwa jak najwięcej lat.
+Twoje ciało przy moim układa się naturalnie, bez wysiłku, bez gry,
+jakbyśmy od dawna wiedzieli, gdzie jest miejsce dłoni, usta, bioder – a co się wydarzy wiemy tylko my.`,
+`Kotek, odkąd Cię trzymałem w ramionach naprawdę, każdy dzień bez Ciebie smakuje trochę  jak nie kompletny, lub z brakiemBo wiem już, jak Twoje ciało do mojego pasuje,i me serce po tamtej chwili podwójnie dziś tęsknotę czuje.
+Nie mogę się doczekać kolejnego spotkania,kolejnego „nareszcie” zamiast czekania.Kiedy znów Cię zobaczę i bez żadnych słówprzytulę Cię mocno, jakby cały świat był tylko tu.
+Pamiętam, jak wtuliłaś się we mnie bez słowa,jak świat przestał istnieć, zostałaś tylko Ty i ta chwila wyjątkowa.Twoje dłonie na moich plecach, mój oddech przy Twojej szyi,i to ciche uczucie, że jesteśmy dokładnie tam, gdzie powinniśmy być w tej chwili.
+Te jedno spotkanie wystarczyło mi w zupełności,by wiedzieć, że chcę więcej tej naszej bliskości.Więcej Twojego ciepła przy mojej skórze,więcej tych chwil, gdy wtuleni leżymy na chmurze.
+Nie mogę się doczekać, kiedy znów Cię zobaczę,kiedy znów w Twoich oczach cały świat zobaczę.Kiedy powiem „Kocham Cię” i uśmiechniesz się tak,że serce znowu zgubi rytm, dokładnie jak tamtego dnia.
+Bo jedno spotkanie to dla mnie za mało,skoro serce już wie, jak dobrze się stało.Więc czekam spokojnie, lecz ogień mam w sobie,bo moje „na zawsze” skierowane jest ku Tobie.`,
+`Dziś jest Twoje święto piękne,Chcę by chwile były świetne.Pełne śmiechu, cudnych brzmień,W końcu to Twój wyjątkowy dzień.
+Dla mej ukochanej kwiaty w dłoni,Niech się szczęście wokół broni.Niech uśmiechu blask promienny,Będzie z Tobą już codzienny.
+Niech Ci życie płynie śmiałoDaje dużo, nie za mało.Niech sukcesów pełna drogaPrzeprowadzi Dar od Boga.
+Niech Ci słońce jasno świeci,Samą radość miała z dzieci.Niech marzenia, te skrywane,Będą szybko Ci spełniane.
+Niech się los pośpieszy trochę,Skróci każdą chwilę zwłoki.Chcę już znowu stanąć blisko,Chcę byś czuła że masz wszystko.
+Niech miłość nasza wiecznie trwa,Satysfakcję i radość dawała gra.Niech każdy dzień Ci szczęście da,A serca nasze biją wspólnie obydwa.
+Niech los nas szybko znów połączy,Niech każdą tęsknotę wreszcie skończy.Byśmy jak najczęściej się widywali,I w swoich ramionach zasypiali.
+Niech wspólne chwile rosną w siłę,Niech będą piękne nasze chwilę.Niech śmiech i radość z nami idą,A smutki gdzieś daleko zginą.
+Chcę, byśmy razem szczęście czuli,By świat nas zawsze mocno tulił,By każdy dzień był pełen bliskości,Ciepła, nadziei i wspólnej miłości.
+Bardzo kocham – szczerze, mocno,Każdym dniem i każdą nocą.W każdej myśli, w każdym śnie,Zawsze jesteś obok mnie.
+Dziś spełnię Twe życzenie,Każde ciche Twe marzenie.Powiedz słowo, a ja to sprawię,Daj mi znać, a ja się zjawię.
+W Dniu Kobiet – samych cudów,Mało trosk i mało trudów.Dużo śmiechu, kwiatów, słońca,I radości bez końca! 
+Dużo miłości, radości i ciepła każdego dnia,Bo jesteś dla mnie całym światem, na zawsze razem Ty i ja.`,
+`Szczęściu moje ukochane,
+Wielkie szczęście jest Ci dane,
+Bo spotkałeś cudną Karrę,
+Zwaną czasem Boskim Darem Lecz ta Karra nie tak młoda,
+A jej pamięć gadać szkoda.
+Zapomniała że jej Szczęściu Dziś obchodzi swoje święto (brak rymu).
+Tak więc życzę Ci Kochanie moje,
+Niech się spełnią marzenia Twoje,
+Niech Twój konar wiecznie płonie,
+I wciąż miękkie będą dłonie.
+Bo już w planach jest spotkanie,
+Szczęściu nagą Karrę tam zastanie.
+Będzie ogień, będzie woda,będzie Cię bolała noga.`,
+`Kotek, niech dziś czarne chmury pójdą w dal,
+
+bo nawet gorszy moment to tylko chwilowy stan.
+
+Jest ktoś, kto marzy o Tobie co dzień,
+
+i wierzy, że zaraz znów zrobi się lżej.
+
+
+
+Masz w sobie dobro, ciepło i siłę,
+
+która potrafi rozjaśnić każdą trudną chwilę.
+
+A jeśli dziś emocje są nie te, a myśl przytłaczająca,
+
+to pamiętaj - jesteś ważna, cudowna i w pełni wystarczająca.
+
+
+
+Pamiętaj, że nie jesteś sama w tym dniu,
+
+jest ktoś, kto myśli o Tobie bez tchu.
+
+Kto wierzy w Ciebie i trzyma Twą stronę,
+
+i chce, byś znów czuła się lekka i miała ochronę.
+
+
+
+Zawsze możesz na mnie liczyć, w każdą noc i dzień,
+
+będę tulić z czułością, do puki nie będzie lżej.
+
+Pójdę za Tobą w każdą stronę, 
+
+oddając swe serce w Twe cudne dłonie.`,
+`Kiedy zamykam oczy, cichnie świat i widzę tylko Ciebie 
+
+Nie dlatego, że chcę, nie dlatego, że muszę,
+
+po prostu tam jesteś - uskrzydlając moją duszę.
+
+
+
+Jesteś miejscem, gdzie napięcie traci sens,
+
+gdzie serce oddycha lżej, a ciężar znika gdzieś.
+
+Gdy myśl o Tobie przychodzi tak cicho, bez słów,
+
+czuję się szczęśliwy jak dziecko i jakbym unosił się znów.
+
+
+
+A kiedy w głowie brzmią piosenki, stare, nie moje, z radia,
+
+to wiem, że to miłość znalazła melodię - nie pytając mnie o zdania.
+
+Bo uczucie samo wie, jak chce być nazwane,
+
+a przy Tobie wszystko staje się proste i prawdziwe, i znane.
+
+
+
+Jeśli więc czasem milknę, to dlatego, że brak mi słów,
+
+dlatego, że to, co czuję, wykracza poza ich nurt.
+
+Nie ze strachu, nie z dystansu, lecz z ciszy pełnej znaczenia,
+
+bo przy Tobie każde słowo chcę mówić z namysłem, nie z przyzwyczajenia.
+
+
+
+Nie obawiaj się chwili, nie licz swoich cieni,
+
+bo w moich oczach nic Cię nie zmieni.
+
+Zawsze spojrzę na Ciebie przez to, co czuję,
+
+a to uczucie widzi więcej i nigdy nic nie zepsuje.
+
+
+
+Dla mnie jesteś piękna, cudowna w każdym oddechu dnia,
+
+równie jak cudowna i piękna jest miłość do Ciebie ma.`,
+`Kochanieńka ode mnie życzenie płynie najszczersze i bardzo chcę,
+
+Byś zawsze czuła, jak bardzo kocham Cię.
+
+Byś zawsze wiedziała, co czuję i kim dla mnie jesteś.
+
+Bez wielkich słów, bez obietnic na wiatr,
+
+Ja obiecuję, że będę przy Tobie przez cały czas.
+
+
+
+Niech Nowy Rok przyniesie Ci uśmiech od rana,
+
+I pociechę z dzieci - bliską, prawdziwą, moja kochana.
+
+Niech śmiech Orzeszka rozjaśnia zwykłe dni,
+
+Bo w tych małych stworkach najwięcej szczęścia tkwi.
+
+
+
+Niech dystans nas uczy, a nie oddala wcale,
+
+Niech „pierwsze razy” czekają na nas śmiale.
+
+Niech wśród węży i ciszy Twój świat dalej lśni i spokojem trwa,
+
+A ja będę myślą, co idzie przy Tobie krokiem każdego dnia.
+
+
+
+Niech czeka na nas domek ukryty wśród drzew,
+
+Gdzie cisza i bliskość mają swój własny sens.
+
+Niech las nas otuli spokojem i snem,
+
+A serca odnajdą się tam - jedno przy drugim, nazywając tą chwilę najwspanialszym dniem. 
+
+
+
+Niech to spotkanie zapisze się w nas na stałe,
+
+Jak coś, co wspomina się cieple i pamięta wszystkie detale.
+
+Niech nasze wspomnienia unoszą nas jak zmierzch nad ziemią,
+
+Niech będą tymi, do których wraca się myślami- z nadzieją.`,
+`Zrozumiałem, że zraniłem Cię - dałem się ponieść niechcianym słowom
+
+Choć wcale nie chciałem - to przyszło jak burza nad głową.
+
+Chciałem być szczery, a wyszedł Twój ból,
+
+I teraz sam tonę w wyrzutach mych słów.
+
+
+
+Ty jednak nie złościsz się, nie odpychasz mnie,
+
+Choć mogłabyś milczeć - Ty wspierasz mnie.
+
+Ukrywasz swój smutek, bym czuł się lżej,
+
+A ja to widzę i boli mnie, że tak jest.
+
+
+
+Dziękuję Ci, skarbie, że trwasz mimo burz,
+
+Że jesteś przy mnie, gdy gubię swój kurs.
+
+Przepraszam za słowa, co niosły Ci łzy,
+
+Obiecuję Ci, Karro - lepszy będę ja, niż ze mną sny.
+
+
+
+Bo choć czuję, że trochę zmienił się świat,
+
+To w sercu Twym wciąż chcę mieć swój ślad.
+
+Kocham Cię mocno - w tym cały sens,
+
+I tylko z Tobą - chcę budzić się, wiesz? ❤️`,
+`Choć moje słowa wyszły inaczej, niż chciałem,
+
+To w sercu miałem jedno - byśmy dalej trwali całym swoim zapałem.
+
+To, co napisałem, nie miało ranić,
+
+Lecz pokazać, że też w ten sposób chce coś poprawić.
+
+
+
+Czasem słowa układam zbyt źle,
+
+W sercu miałem jedno - że Kocham Cię,
+
+Bo Ty jesteś tą myślą, co budzi mnie w noc,
+
+Tą iskrą, co daje mi siłę i moc.
+
+
+
+Dlatego skarbie, nie poddawaj się,
+
+Walcz ze mną o nas - bo to ma sens.
+
+A ja ze swej strony postaram się znów,
+
+Byś czuła się bezpieczna w każdym z mych słów.
+
+
+
+Chcę, żebyś czuła, jak bardzo mi zależy,
+
+Jak serce przy Tobie naprawdę wciąż wierzy.
+
+A ja chcę Cię prosić - nie rezygnuj ze mnie,
+
+Bo moje uczucia do Ciebie są prawdziwe, niezmienne.
+
+
+
+A to, że o mnie walczysz naprawdę wiele dla mnie znaczy,
+
+Twoje wsparcie koi serce, daje siłę, gdy coś mnie przytłacza.
+
+Choć sam w sobie utkwiłem i nie ruszę szybko z miejsc ciemnych i złych,
+
+To dzięki Tobie widzę drogę - małymi krokami wychodzę z nich. 
+
+
+
+Nie poddawaj się - walcz jeszcze raz,
+
+Bo wierzę, że przyszłość jest wciąż w nas.
+
+A jeśli zabłądzę, poprawię się, wiesz -
+
+Bo całym swym sercem Kocham Cię, i chcę, byś to uczucie wciąż chciała też. ❤️`,
+`Kotek, tak na początek chcę Ci powiedzieć coś skrycie,
+że jesteś jak ciepłe słońce, które rozjaśnia mi życie.
+Bo jesteś kimś wyjątkowym, kimś więcej niż marzeniem,
+jesteś moim spokojem, szczęściem i przeznaczeniem.
+
+Już wybiła północ i zacznia się Twoje święto, 
+Moje uczucia do Ciebie podtrzymują mi tętno.
+Bo jesteś nie tylko marzeniem, które się spełniło,
+ale kimś, kto sprawił, że moje serce naprawdę zaczęło żyć i bić z siłą.
+
+Życzę Ci szczęścia tak wielkiego, by nie miało końca,
+żeby każdy dzień dla Ciebie zaczynał się od słońca.
+Żebyś zawsze była dumna, silna, pewna siebie,
+i żeby całe dobro świata wracało zawsze do Ciebie.
+
+Życzę Ci marzeń spełnionych, tych cichych i skrytych,
+i naszych wspólnych chwil jeszcze nieodkrytych.
+Żebyśmy jak najczęściej obok siebie się budzili,
+i żebyśmy razem całe życie po prostu szczęśliwi byli.
+
+Życzę Ci, żebyś nigdy nie wątpiła w siebie ani w nas,
+żebyśmy mimo wszystkiego zawsze mieli swój świat i swój czas.
+Życzę Ci wspólnych nocy, spacerów i planów,
+i żebyśmy kiedyś mogli powiedzieć że się nam udało.
+
+Chcę, żebyś była szczęśliwa, to moje największe życzenie,
+bo Twoje szczęście to moje serca uspokojenie,
+bo kiedy Ty się uśmiechasz, ja uśmiecham się też,
+i wtedy wiem, że więcej do szczęścia nie trzeba mi już, ale pewnie to już wiesz. 
+Kocham Cię 🍀💕🍀`,
+`Kocham Cię!❤️`
+];
+
+let currentIndex = 0;
+let currentList = [];
+
+const page = document.getElementById("page");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const pageNumber = document.getElementById("pageNumber");
+
+function openBook(type) {
+    giftOptions.classList.add("hidden");
+    document.getElementById("bookScreen").classList.remove("hidden");
+
+    if(type === "stories") currentList = stories;
+    if(type === "poems") currentList = poems;
+
+    currentIndex = 0;
+    showPage();
+    document.getElementById("bookControls").classList.remove("hidden");
+}
+
+function showPage() {
+    page.innerText = currentList[currentIndex];
+    pageNumber.innerText = `Strona ${currentIndex+1}/${currentList.length}`;
+}
+
+nextBtn.onclick = () => {
+    if (currentIndex < currentList.length - 1) {
+        currentIndex++;
+        showPage();
+    }
+};
+
+prevBtn.onclick = () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        showPage();
+    }
+};
+
+// KONFETTI
+function startConfetti() {
+    const canvas = document.getElementById("confettiCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pieces = [];
+    for (let i = 0; i < 150; i++) {
+        pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            size: Math.random() * 6 + 4,
+            speed: Math.random() * 3 + 2,
+            color: `hsl(${Math.random()*360},100%,60%)`
+        });
     }
 
-});
-
-function showCategory(type) {
-
-    if (type === "stories") {
-        contentBox.innerHTML = `
-        <h3>Opowiadanie 1</h3>
-        <p>Tutaj wkleisz swoje pierwsze opowiadanie...</p>
-        `;
+    function update() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p => {
+            p.y += p.speed;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        requestAnimationFrame(update);
     }
 
-    if (type === "poems") {
-        contentBox.innerHTML = `
-        <h3>Wierszyk 1</h3>
-        <p>Tutaj wkleisz swój pierwszy wierszyk...</p>
-        `;
-    }
-
+    update();
 }
 </script>
 
